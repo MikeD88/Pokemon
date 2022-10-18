@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+import fetch from 'node-fetch';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import fs, { appendFile, readFile, writeFile } from 'node:fs';
+import Pokedex from 'pokedex-promise-v2';
+import { type } from 'node:os';
+
+//Arguments passed in to a node command are part of the process.argv array
+//The 0 index in the array is where your Node installation is stored
+//The 1 index in the array is where the file you ran Node on is stored
+//The 2 index in the array is the first argument you pass to the Node command after the file name
+//See documentation here - https://nodejs.org/docs/latest/api/process.html#process_process_argv
+
+const argv = yargs(process.argv.slice(2))
+  .usage('Usage: $0 -t [type]')
+  .command('type', 'List every pokemon of a given type')
+  .demandOption(['t'])
+  .describe('t', 'The pokemon type')
+  .alias('t', 'type')
+  .argv;
+
+async function getPokeType(type) {
+  writeFile('///home/deyson/projects/sdi-blended-async-scaffold/test.txt', '', (err) => {
+    if (err) throw err;
+  })
+  try {
+    let response = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
+    const data = await response.json()
+    //console.log(data.pokemon);
+    data.pokemon.map(async function (obj) {
+      let res = await fetch(obj.pokemon.url);
+      const data = await res.json();
+      appendFile('///home/deyson/projects/sdi-blended-async-scaffold/test.txt', `\n${data.name}\n`, (err) => {
+        if (err) throw err;
+      });
+      if (data.moves.length > 0) {
+        for (let move of data.moves) {
+          appendFile('///home/deyson/projects/sdi-blended-async-scaffold/test.txt', `${move.move.name}, `, (err) => {
+            if (err) throw err;
+          })
+        }
+      } else {
+        appendFile('///home/deyson/projects/sdi-blended-async-scaffold/test.txt', 'There were no moves found for this Pokemon ', (err) => {
+          if (err) throw err;
+        });
+      }
+    })
+  }
+  catch (error) {
+    return null;
+  }
+}
+
+getPokeType(argv.type);
+
+readFile('///home/deyson/projects/sdi-blended-async-scaffold/test.txt', 'utf8', (err, data) => {
+  if (err) throw err;
+  console.log(data);
+});
+
+// const typeJSON = await getPokeType(argv.type);
+// const pokeNames = [];
+
+// for (let obj of typeJSON) {
+//   //console.log(obj.pokemon.name);
+//   pokeNames.push(obj.pokemon.name);
+// };
+
+// for (let pokemon of pokeNames) {
+
+// }
+
+// for (let obj of pokeJSON) {
+//   let resultObj = {};
+//   resultObj.name = obj.name;
+//   for (let moveset of obj.moves) {
+//     resultObj.moves = moveset
+//   }
+//   pokeMoves.push(resultObj)
+// }
+
+// console.log(pokeMoves)
+
+
+// writeFile('test.txt', getPokeJson(argv.type), (err) => {
+//   if (err) throw err;
+// });
